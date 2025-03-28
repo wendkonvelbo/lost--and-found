@@ -1,0 +1,71 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract LostAndFound is ReentrancyGuard, Ownable {
+    struct Item {
+        uint256 id;
+        string name;
+        string description;
+        string imageHash; // IPFS hash
+        address owner;
+        bool isFound;
+        bool isClaimed;
+    }
+
+    mapping(uint256 => Item) public items;
+    uint256 public nextItemId;
+    mapping(address => uint256[]) public userItems;
+
+    event ItemRegistered(uint256 indexed id, string name, address indexed owner);
+    event ItemFound(uint256 indexed id, address indexed finder);
+    event ItemClaimed(uint256 indexed id, address indexed claimer);
+
+    modifier onlyItemOwner(uint256 _id) {
+        require(msg.sender == items[_id].owner, "Not the item owner");
+        _;
+    }
+
+    function registerItem(
+        string memory _name,
+        string memory _description,
+        string memory _imageHash
+    ) external nonReentrant {
+        uint256 itemId = nextItemId++;
+        items[itemId] = Item({
+            id: itemId,
+            name: _name,
+            description: _description,
+            imageHash: _imageHash,
+            owner: msg.sender,
+            isFound: false,
+            isClaimed: false
+        });
+
+        userItems[msg.sender].push(itemId);
+
+        emit ItemRegistered(itemId, _name, msg.sender);
+    }
+
+    function markAsFound(uint256 _id) external nonReentrant {
+        require(!items[_id].isFound, "Item already marked as found");
+        items[_id].isFound = true;
+
+        emit ItemFound(_id, msg.sender);
+    }
+
+    function claimItem(uint256 _id) external onlyItemOwner(_id) nonReentrant {
+        require(items[_id].isFound, "Item is not marked as found yet");
+        require(!items[_id].isClaimed, "Item already claimed");
+
+        items[_id].isClaimed = true;
+
+        emit ItemClaimed(_id, msg.sender);
+    }
+
+    function getUserItems(address _user) external view returns (uint256[] memory) {
+        return userItems[_user];
+    }
+}
