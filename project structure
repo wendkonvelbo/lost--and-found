@@ -1,0 +1,23 @@
+/decentralized-lost-found
+ ├── /contracts
+ │   └── LostAndFound.sol
+ ├── /frontend
+ │   ├── /components
+ │   │   ├── RegisterItem.js
+ │   │   ├── MarkFound.js
+ │   │   ├── ClaimItem.js
+ │   ├── /pages
+ │   │   ├── index.js
+ │   │   └── _app.js
+ │   └── package.json
+ ├── /backend
+ │   ├── server.js
+ │   ├── routes.js
+ │   ├── models.js
+ │   ├── .env
+ │   └── package.json
+ ├── /test
+ │   ├── LostAndFound.test.js
+ ├── /scripts
+ │   └── deploy.js
+ └── hardhat.config.js
