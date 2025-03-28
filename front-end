@@ -1,0 +1,54 @@
+import { useState } from 'react';
+import { ethers } from 'ethers';
+
+const CONTRACT_ADDRESS = "0xYourContractAddress"; // Add deployed contract address here
+const ABI = [/* Insert contract ABI here */];
+
+function RegisterItem() {
+    const [name, setName] = useState("");
+    const [description, setDescription] = useState("");
+    const [imageHash, setImageHash] = useState("");
+
+    const registerItem = async () => {
+        if (!window.ethereum) {
+            alert("Please install MetaMask!");
+            return;
+        }
+
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+
+        try {
+            const tx = await contract.registerItem(name, description, imageHash);
+            await tx.wait();
+            alert(`Item Registered Successfully!`);
+        } catch (error) {
+            console.error(error);
+            alert("Error registering item!");
+        }
+    };
+
+    return (
+        <div>
+            <h2>Register Lost Item</h2>
+            <input 
+                type="text" 
+                placeholder="Item Name" 
+                onChange={(e) => setName(e.target.value)} 
+            />
+            <textarea 
+                placeholder="Description" 
+                onChange={(e) => setDescription(e.target.value)}
+            />
+            <input 
+                type="text" 
+                placeholder="IPFS Hash (Uploaded Image)" 
+                onChange={(e) => setImageHash(e.target.value)} 
+            />
+            <button onClick={registerItem}>Submit</button>
+        </div>
+    );
+}
+
+export default RegisterItem;
