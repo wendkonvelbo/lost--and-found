@@ -1,0 +1,17 @@
+const { expect } = require("chai");
+
+describe("LostAndFound Contract", function () {
+    let contract;
+
+    beforeEach(async () => {
+        const LostAndFound = await ethers.getContractFactory("LostAndFound");
+        contract = await LostAndFound.deploy();
+        await contract.waitForDeployment();
+    });
+
+    it("should register a new item", async function () {
+        await contract.registerItem("Wallet", "Black leather wallet", "Qm12345");
+        const item = await contract.items(0);
+        expect(item.name).to.equal("Wallet");
+    });
+});
